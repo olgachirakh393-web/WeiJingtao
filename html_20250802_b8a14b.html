@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>博物馆所在地区面积与影响力关系折线图</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+        .chart-title {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-title">博物馆所在地区面积与影响力关系折线图</div>
+    <div class="chart-container">
+        <canvas id="museumAreaChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('museumAreaChart').getContext('2d');
+        
+        // 从Excel数据中提取的地区面积和影响力数值，并按地区面积排序
+        const museumData = [
+            { region: "北京地区(中国国家博物馆)", area: 1.64, influence: 0.5 },
+            { region: "北京地区(故宫博物院)", area: 1.64, influence: 0.6 },
+            { region: "北京地区(徐悲鸿纪念馆)", area: 1.64, influence: 0.3 },
+            { region: "辽宁地区", area: 4.84, influence: 0.4 },
+            { region: "天津地区", area: 1.19, influence: 0.45 },
+            { region: "陕西地区(西安碑林)", area: 1.06, influence: 0.4 },
+            { region: "陕西地区(昭陵)", area: 1.06, influence: 0.3 },
+            { region: "江苏地区(无锡)", area: 0.46, influence: 0.35 },
+            { region: "浙江地区", area: 5.55, influence: 0.45 },
+            { region: "上海地区", area: 0.63, influence: 0.6 },
+            { region: "台北地区", area: 0.36, influence: 0.4 },
+            { region: "大阪地区", area: 0.02, influence: 0.2 },
+            { region: "京都地区", area: 0.01, influence: 0.15 },
+            { region: "奈良地区(大和文华馆)", area: 0.01, influence: 0.1 },
+            { region: "兵库地区", area: 0.01, influence: 0.15 },
+            { region: "东京地区(宫内厅)", area: 0.01, influence: 0.1 },
+            { region: "伦敦地区", area: 0.21, influence: 0.7 },
+            { region: "华盛顿地区(弗利尔)", area: 0.98, influence: 0.3 },
+            { region: "新泽西地区(普林斯顿)", area: 0.98, influence: 0.15 },
+            { region: "纽约地区(大都会)", area: 4.84, influence: 0.6 },
+            { region: "波士顿地区", area: 0.45, influence: 0.4 },
+            { region: "克利夫兰地区", area: 0.21, influence: 0.3 },
+            { region: "芝加哥地区", area: 1.57, influence: 0.5 },
+            { region: "圣路易斯地区", area: 0.21, influence: 0.25 },
+            { region: "堪萨斯地区(纳尔逊)", area: 0.48, influence: 0.2 }
+        ].sort((a, b) => a.area - b.area);
+
+        // 准备图表数据
+        const labels = museumData.map(museum => museum.region);
+        const areaData = museumData.map(museum => museum.area);
+        const influenceData = museumData.map(museum => museum.influence);
+
+        // 创建图表
+        const museumAreaChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '地区面积(万平方千米)',
+                        data: areaData,
+                        borderColor: 'rgba(65, 105, 225, 1)',
+                        backgroundColor: 'rgba(65, 105, 225, 0.2)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        yAxisID: 'y',
+                        pointBackgroundColor: 'rgba(65, 105, 225, 1)',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    },
+                    {
+                        label: '影响力数值',
+                        data: influenceData,
+                        borderColor: 'rgba(220, 20, 60, 1)',
+                        backgroundColor: 'rgba(220, 20, 60, 0.2)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        pointBackgroundColor: 'rgba(220, 20, 60, 1)',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            },
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y.toFixed(2);
+                                if (context.datasetIndex === 0) {
+                                    label += ' 万km²';
+                                }
+                                return label;
+                            },
+                            footer: function(tooltipItems) {
+                                const dataIndex = tooltipItems[0].dataIndex;
+                                return museumData[dataIndex].region;
+                            }
+                        },
+                        displayColors: true,
+                        usePointStyle: true,
+                        padding: 12,
+                        bodyFont: {
+                            size: 14
+                        },
+                        titleFont: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        footerFont: {
+                            size: 12,
+                            style: 'italic'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '博物馆所在地区',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: {top: 20}
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 60,
+                            minRotation: 60,
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '地区面积(万平方千米)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        min: 0,
+                        max: 6,
+                        ticks: {
+                            stepSize: 0.5
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: '影响力数值',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        min: 0,
+                        max: 0.8,
+                        ticks: {
+                            stepSize: 0.1
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        borderWidth: 2
+                    }
+                }
+            }
+        });
+
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            museumAreaChart.resize();
+        });
+    </script>
+</body>
+</html>
